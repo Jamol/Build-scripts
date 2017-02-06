@@ -1,0 +1,13 @@
+diff --git a/configure b/configure
+index 9d1586c..23b5dd0 100755
+--- a/configure
++++ b/configure
+@@ -1432,7 +1432,7 @@ if [ "$shared" = "yes" ]; then
+         echo "SOFLAGS=-shared -Wl,-h,\$(SONAME) $SOFLAGS" >> config.mak
+     else
+         echo "SOSUFFIX=so" >> config.mak
+-        echo "SONAME=libx264.so.$API" >> config.mak
++        echo "SONAME=libx264.so" >> config.mak
+         echo "SOFLAGS=-shared -Wl,-soname,\$(SONAME) $SOFLAGS" >> config.mak
+     fi
+     echo 'default: lib-shared' >> config.mak
