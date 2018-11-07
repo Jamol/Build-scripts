@@ -15,19 +15,21 @@
 # try to pick it up with the value of _ANDROID_NDK_ROOT below. If
 # ANDROID_NDK_ROOT is set, then the value is ignored.
 # _ANDROID_NDK="android-ndk-r8e"
-_ANDROID_NDK="android-ndk-r10e"
+_ANDROID_NDK="android-ndk-r14b"
 # _ANDROID_NDK="android-ndk-r10"
 
 # Set _ANDROID_EABI to the EABI you want to use. You can find the
 # list in $ANDROID_NDK_ROOT/toolchains. This value is always used.
-# _ANDROID_EABI="x86-4.9"
+#_ANDROID_EABI="x86-4.9"
 # _ANDROID_EABI="arm-linux-androideabi-4.6"
-_ANDROID_EABI="arm-linux-androideabi-4.9"
+#_ANDROID_EABI="arm-linux-androideabi-4.9"
+#_ANDROID_EABI="aarch64-linux-android-4.9"
 
 # Set _ANDROID_ARCH to the architecture you are building for.
 # This value is always used.
 #_ANDROID_ARCH=arch-x86
-_ANDROID_ARCH=arch-arm
+#_ANDROID_ARCH=arch-arm
+#_ANDROID_ARCH=arch-arm64
 
 # Set _ANDROID_API to the API you want to use. You should set it
 # to one of: android-14, android-9, android-8, android-14, android-5
@@ -36,7 +38,7 @@ _ANDROID_ARCH=arch-arm
 # Android 5.0, there will likely be another platform added (android-22?).
 # This value is always used.
 # _ANDROID_API="android-14"
-_ANDROID_API="android-18"
+_ANDROID_API="android-21"
 # _ANDROID_API="android-19"
 
 #####################################################################
@@ -117,13 +119,25 @@ if [ -z "$ANDROID_TOOLCHAIN" ] || [ ! -d "$ANDROID_TOOLCHAIN" ]; then
   # exit 1
 fi
 
-case $_ANDROID_ARCH in
+case $_ANDROID_TARGET_SELECT in
 	arch-arm)	  
       ANDROID_TOOLS="arm-linux-androideabi-gcc arm-linux-androideabi-ranlib arm-linux-androideabi-ld"
 	  ;;
+	arch-arm64-v8a)	  
+      ANDROID_TOOLS="aarch64-linux-android-gcc aarch64-linux-android-ranlib aarch64-linux-android-ld"
+	  ;;
 	arch-x86)	  
       ANDROID_TOOLS="i686-linux-android-gcc i686-linux-android-ranlib i686-linux-android-ld"
-	  ;;	  
+	  ;;
+	arch-x86_64)	  
+      ANDROID_TOOLS="x86_64-linux-android-gcc x86_64-linux-android-ranlib x86_64-linux-android-ld"
+      ;;
+    arch-mips)
+      ANDROID_TOOLS="mipsel-linux-android-gcc mipsel-linux-android-ranlib mipsel-linux-android-ld"
+      ;;
+    arch-mips64)
+      ANDROID_TOOLS="mips64el-linux-android-gcc mips64el-linux-android-ranlib mips64el-linux-android-ld"
+      ;;
 	*)
 	  echo "ERROR ERROR ERROR"
 	  ;;
@@ -197,20 +211,49 @@ export RELEASE=2.6.37
 export SYSTEM=android
 export ARCH=arm
 export CROSS_COMPILE="arm-linux-androideabi-"
+#export ARCH_FLAGS="-march=armv7-a -mfloat-abi=softfp -mfpu=vfpv3-d16"
+#export ARCH_LINK="-march=armv7-a -Wl,--fix-cortex-a8"
 
-if [ "$_ANDROID_ARCH" == "arch-x86" ]; then
+if [ "$_ANDROID_TARGET_SELECT" == "arch-arm64-v8a" ]; then
+	export MACHINE=arm64
+	export ARCH=arm64
+	export CROSS_COMPILE="aarch64-linux-android-"
+	#export MACHINE=arm64
+	#export ARCH=arm64
+	#export CROSS_COMPILE="aarch64-linux-android-"
+	#export ARCH_FLAGS="-march=arm64-v8a -mfloat-abi=softfp -mfpu=vfpv3-d16"
+	#export ARCH_LINK="-march=arm64-v8a -Wl,--fix-cortex-a8"
+fi
+
+if [ "$_ANDROID_TARGET_SELECT" == "arch-x86" ]; then
 	export MACHINE=i686
-	export RELEASE=2.6.37
-	export SYSTEM=android
 	export ARCH=x86
 	export CROSS_COMPILE="i686-linux-android-"
 fi
 
+if [ "$_ANDROID_TARGET_SELECT" == "arch-x86_64" ]; then
+	export MACHINE=i686
+	export ARCH=x86_64
+	export CROSS_COMPILE="x86_64-linux-android-"
+fi
+
+if [ "$_ANDROID_TARGET_SELECT" == "arch-mips" ]; then
+	export MACHINE=i686
+	export ARCH=mips
+	export CROSS_COMPILE="mipsel-linux-android-"
+fi
+
+if [ "$_ANDROID_TARGET_SELECT" == "arch-mips64" ]; then
+	export MACHINE=i686
+	export ARCH=mips64
+	export CROSS_COMPILE="mips64el-linux-android-"
+fi
+
 export CC=gcc
-export ARCH_FLAGS="-march=armv7-a -mfloat-abi=softfp -mfpu=vfpv3-d16"
-export ARCH_LINK="-march=armv7-a -Wl,--fix-cortex-a8"
-export CFLAGS=" ${ARCH_FLAGS} "
-export LDFLAGS=" ${ARCH_LINK} "
+#export ARCH_FLAGS="-march=armv7-a -mfloat-abi=softfp -mfpu=vfpv3-d16"
+#export ARCH_LINK="-march=armv7-a -Wl,--fix-cortex-a8"
+#export CFLAGS=" ${ARCH_FLAGS} "
+#export LDFLAGS=" ${ARCH_LINK} "
 
 # For the Android toolchain
 # https://android.googlesource.com/platform/ndk/+/ics-mr0/docs/STANDALONE-TOOLCHAIN.html
