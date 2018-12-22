@@ -2,6 +2,7 @@
 
 # 1. launch VS native tool command prompt
 # 2. run mingw64_shell.bat
+# 2. C:\msys64>msys2_shell.cmd -mingw64 -full-path
 
 # copy x264 headers and lib to VC INCLUDE and LIB
 # whick link: if it is /usr/bin/link.exe, change it to /usr/bin/link1.exe
@@ -19,20 +20,20 @@ HOST=x86_64-w64-mingw64
     --enable-libx264 \
     --disable-decoder=vp9 \
     --enable-asm \
-    --enable-yasm \
     --enable-shared \
     --disable-static \
     --disable-stripping \
     --disable-ffmpeg \
     --disable-ffplay \
-    --disable-ffserver \
     --disable-ffprobe \
     --disable-avdevice \
+    --disable-avfilter \
     --disable-bzlib \
     --disable-iconv \
     --disable-zlib \
     --disable-libopenjpeg \
     --disable-doc \
+    --target-os=win64 \
     --arch=x86_64 \
     --toolchain=msvc \
     --extra-cflags="-I$X264_DIR" \
