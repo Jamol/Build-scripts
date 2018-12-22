@@ -2,10 +2,10 @@
 
 ### copy gas-preprocessor.pl to /usr/local/bin
 
-SDKVERSION="9.3"
+SDKVERSION=""
 
 CURRENTPATH=`pwd`
-ARCHS="i386 x86_64 armv7 armv7s arm64"
+ARCHS="i386 x86_64 armv7 arm64"
 DEVELOPER=`xcode-select -print-path`
 
 if [ ! -d "$DEVELOPER" ]; then
@@ -129,7 +129,7 @@ done
 echo "Build library..."
 OUTLIBPAHT="${CURRENTPATH}/lib/iphoneos"
 mkdir -p ${OUTLIBPAHT}
-lipo -create ${CURRENTPATH}/bin/iPhoneOS${SDKVERSION}-armv7.sdk/libx264.a ${CURRENTPATH}/bin/iPhoneOS${SDKVERSION}-armv7s.sdk/libx264.a ${CURRENTPATH}/bin/iPhoneOS${SDKVERSION}-arm64.sdk/libx264.a -output ${OUTLIBPAHT}/libx264.a
+lipo -create ${CURRENTPATH}/bin/iPhoneOS${SDKVERSION}-armv7.sdk/libx264.a ${CURRENTPATH}/bin/iPhoneOS${SDKVERSION}-arm64.sdk/libx264.a -output ${OUTLIBPAHT}/libx264.a
 
 OUTLIBPAHT="${CURRENTPATH}/lib/iphonesimulator"
 mkdir -p ${OUTLIBPAHT}

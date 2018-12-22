@@ -3,9 +3,9 @@
 CURRENTPATH=`pwd`
 
 CC_VER=4.9
-NDK_ROOT=~/android/android-ndk-r10e 
+NDK_ROOT=$ANDROID_NDK_HOME
 PREBUILT=$NDK_ROOT/toolchains/arm-linux-androideabi-$CC_VER/prebuilt/darwin-x86_64 
-PLATFORM=$NDK_ROOT/platforms/android-19/arch-arm
+PLATFORM=$NDK_ROOT/platforms/android-24/arch-arm
 
 CPU=armv7-a
 

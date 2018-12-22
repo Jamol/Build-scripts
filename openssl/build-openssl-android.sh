@@ -3,6 +3,8 @@
 make clean
 
 _ARCH_=arm64-v8a
+#_ARCH_=x86
+#_ARCH_=armeabi
 case ${_ARCH_} in
     "armeabi")
         _ANDROID_TARGET_SELECT=arch-arm
@@ -47,6 +49,8 @@ esac
 #xCFLAGS="-DSHARED_EXTENSION=.so -fPIC -DOPENSSL_PIC -DDSO_DLFCN -DHAVE_DLFCN_H -mandroid -I$ANDROID_DEV/include -B$ANDROID_DEV/$xLIB -O3 -fomit-frame-pointer -Wall"
 xCFLAGS="-DSHARED_EXTENSION=.so -fPIC -DOPENSSL_PIC -DDSO_DLFCN -DHAVE_DLFCN_H -mandroid -O3 -fomit-frame-pointer -Wall"
 
+# modify soname
+sed -i -e 's/-soname=$$SHLIB$$SHLIB_SOVER$$SHLIB_SUFFIX/-soname=lib$(LIBNAME)cisco.so/g' Makefile.shared
 perl -pi -e 's/install: all install_docs install_sw/install: install_docs install_sw/g' Makefile.org
 ./config shared no-ssl2 no-ssl3 no-comp no-hw no-engine #$configure_platform $xCFLAGS
 

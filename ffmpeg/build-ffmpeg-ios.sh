@@ -6,9 +6,10 @@ X264=../x264
 
 #SDKVERSION="9.3"
 SDKVERSION=""
+DEPLOYMENT_TARGET="9.0"
 
 CURRENTPATH=`pwd`
-ARCHS="i386 x86_64 armv7 armv7s arm64"
+ARCHS="i386 x86_64 armv7 arm64"
 MODULES="libavcodec libavformat libavutil libswresample libswscale"
 
 DEVELOPER=`xcode-select -print-path`
@@ -49,14 +50,14 @@ do
 	if [[ "${ARCH}" == "i386" || "${ARCH}" == "x86_64" ]];
 	then
 		PLATFORM="iPhoneSimulator"
-		CFLAGS="$CFLAGS -mios-simulator-version-min=7.0"
+		CFLAGS="$CFLAGS -mios-simulator-version-min=${DEPLOYMENT_TARGET}"
 	else
 		PLATFORM="iPhoneOS"
 		if [ "$ARCH" = "arm64" ]
 		then
 		    EXPORT="GASPP_FIX_XCODE5=1"
 		fi
-        CFLAGS="$CFLAGS -fembed-bitcode -mios-version-min=7.0"
+        CFLAGS="$CFLAGS -fembed-bitcode -mios-version-min=${DEPLOYMENT_TARGET}"
 	fi
 	
 	export CROSS_TOP="${DEVELOPER}/Platforms/${PLATFORM}.platform/Developer"
@@ -99,7 +100,6 @@ do
         --disable-stripping \
         --disable-ffmpeg \
         --disable-ffplay \
-        --disable-ffserver \
         --disable-ffprobe \
         > "${LOG}" 2>&1
 
@@ -136,7 +136,7 @@ OUTLIBPAHT="${CURRENTPATH}/lib/iphoneos"
 mkdir -p ${OUTLIBPAHT}
 for MODULE in ${MODULES}
 do
-    lipo -create ${CURRENTPATH}/bin/iPhoneOS${SDKVERSION}-armv7.sdk/${MODULE}.a ${CURRENTPATH}/bin/iPhoneOS${SDKVERSION}-armv7s.sdk/${MODULE}.a ${CURRENTPATH}/bin/iPhoneOS${SDKVERSION}-arm64.sdk/${MODULE}.a -output ${OUTLIBPAHT}/${MODULE}.a
+    lipo -create ${CURRENTPATH}/bin/iPhoneOS${SDKVERSION}-armv7.sdk/${MODULE}.a ${CURRENTPATH}/bin/iPhoneOS${SDKVERSION}-arm64.sdk/${MODULE}.a -output ${OUTLIBPAHT}/${MODULE}.a
 done
 
 OUTLIBPAHT="${CURRENTPATH}/lib/iphonesimulator"

@@ -3,9 +3,9 @@
 CURRENTPATH=`pwd`
 
 CC_VER=4.9
-NDK_ROOT=~/android/android-ndk-r10e 
+NDK_ROOT=$ANDROID_NDK_HOME
 PREBUILT=$NDK_ROOT/toolchains/arm-linux-androideabi-$CC_VER/prebuilt/darwin-x86_64 
-PLATFORM=$NDK_ROOT/platforms/android-19/arch-arm
+PLATFORM=$NDK_ROOT/platforms/android-24/arch-arm
 
 CPU=armv7-a
 OPTIMIZE_CFLAGS="-mfloat-abi=softfp -mfpu=vfpv3-d16 -marm -march=$CPU "
@@ -26,18 +26,19 @@ X264_DIR=../x264
     --enable-pthreads \
     --disable-stripping \
     --disable-doc \
+    --disable-programs \
     --disable-ffmpeg \
     --disable-ffplay \
-    --disable-ffserver \
     --disable-ffprobe \
     --disable-avdevice \
+    --disable-network \
     --enable-thumb \
     --enable-cross-compile \
     --extra-libs="-lgcc" \
     --cc=$PREBUILT/bin/arm-linux-androideabi-gcc \
     --cross-prefix=$PREBUILT/bin/arm-linux-androideabi- \
     --nm=$PREBUILT/bin/arm-linux-androideabi-nm \
-    --target-os=linux \
+    --target-os=android \
     --arch=arm \
     --cpu=$CPU \
     --sysroot=$PLATFORM \
