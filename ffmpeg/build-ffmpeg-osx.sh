@@ -7,7 +7,7 @@ X264=../x264
 CFLAGS="-I$X264"
 LDFLAGS="-L$X264/lib/osx"
 	
-./configure --prefix=./lib/osx \
+./configure --prefix=. \
     --logfile=./config.log \
     --enable-gpl \
     --enable-libx264 \
