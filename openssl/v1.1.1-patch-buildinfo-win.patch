@@ -1,0 +1,15 @@
+diff --git a/build.info b/build.info
+index 3dda4e89bf..17cd627c17 100644
+--- a/build.info
++++ b/build.info
+@@ -86,8 +86,8 @@ ELSIF[{- $config{target} =~ /^mingw/ -}]
+  SHARED_NAME[libcrypto]=libcrypto-{- $sover_filename -}{- $config{target} eq "mingw64" ? "-x64" : "" -}
+  SHARED_NAME[libssl]=libssl-{- $sover_filename -}{- $config{target} eq "mingw64" ? "-x64" : "" -}
+ ELSIF[{- $config{target} =~ /^VC-/ -}]
+- SHARED_NAME[libcrypto]=libcrypto-{- $sover_filename -}{- $target{multilib} -}
+- SHARED_NAME[libssl]=libssl-{- $sover_filename -}{- $target{multilib} -}
++ SHARED_NAME[libcrypto]=libcrypto
++ SHARED_NAME[libssl]=libssl
+ ENDIF
+ 
+ # VMS has a cultural standard where all libraries are prefixed.
