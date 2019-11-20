@@ -1,0 +1,13 @@
+diff --git a/Configure b/Configure
+index a6aae00fd4..2334e61863 100755
+--- a/Configure
++++ b/Configure
+@@ -1134,6 +1134,8 @@ $target{dso_extension}//=$target{shared_extension_simple};
+ ($target{shared_import_extension}=$target{shared_extension_simple}.".a")
+     if ($config{target} =~ /^(?:Cygwin|mingw)/);
+ 
++$target{shared_extension}=$target{shared_extension_simple};
++
+ # Fill %config with values from %user, and in case those are undefined or
+ # empty, use values from %target (acting as a default).
+ foreach (keys %user) {

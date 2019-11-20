@@ -21,7 +21,7 @@
 ###########################################################################
 #  Change values here													  #
 #				                                                          #
-VERSION="1.0.2g.6.0.4"													  #
+VERSION="1.1.1"													          #
 #SDKVERSION="9.3"														  #
 #																		  #
 ###########################################################################
@@ -33,7 +33,7 @@ VERSION="1.0.2g.6.0.4"													  #
 make clean
 
 CURRENTPATH=`pwd`
-ARCHS="i386 x86_64 armv7 armv7s arm64"
+ARCHS="x86_64 arm64 armv7s"
 DEVELOPER=`xcode-select -print-path`
 
 if [ ! -d "$DEVELOPER" ]; then
@@ -75,38 +75,59 @@ mkdir -p "${CURRENTPATH}/lib"
 #tar zxf openssl-${VERSION}.tar.gz -C "${CURRENTPATH}/src"
 #cd "${CURRENTPATH}/src/openssl-${VERSION}"
 
-
 for ARCH in ${ARCHS}
 do
-	if [[ "${ARCH}" == "i386" || "${ARCH}" == "x86_64" ]];
-	then
+	if [[ "${ARCH}" == "i386" || "${ARCH}" == "x86_64" ]]; then
 		PLATFORM="iPhoneSimulator"
+		TARGET="iossim-cross"
+		if [[ "${ARCH}" == "x86_64" ]]; then
+			TARGET="ios64sim-cross"
+		fi
+	elif [ "${ARCH}" == "tv_x86_64" ]; then
+		ARCH="x86_64"
+		PLATFORM="AppleTVSimulator"
+		TARGET="tvossim-cross"
+	elif [ "${ARCH}" == "tv_arm64" ]; then
+		ARCH="arm64"
+		PLATFORM="AppleTVOS"
+		TARGET="tvos64-cross"
 	else
-		sed -ie "s!static volatile sig_atomic_t intr_signal;!static volatile intr_signal;!" "crypto/ui/ui_openssl.c"
+		#sed -ie "s!static volatile sig_atomic_t intr_signal;!static volatile intr_signal;!" "crypto/ui/ui_openssl.c"
 		PLATFORM="iPhoneOS"
+		TARGET="ios-cross"
+		if [[ "${ARCH}" == "arm64" ]]; then
+			TARGET="ios64-cross"
+		fi
 	fi
-	
+	 
 	export CROSS_TOP="${DEVELOPER}/Platforms/${PLATFORM}.platform/Developer"
 	export CROSS_SDK="${PLATFORM}${SDKVERSION}.sdk"
 	export BUILD_TOOLS="${DEVELOPER}"
+	#export CROSS_COMPILE=`xcode-select --print-path`/Toolchains/XcodeDefault.xctoolchain/usr/bin/
 
-	echo "Building openssl-${VERSION} for ${PLATFORM} ${SDKVERSION} ${ARCH}"
-	echo "Please stand by..."
-
-	export CC="${BUILD_TOOLS}/usr/bin/gcc -fembed-bitcode -arch ${ARCH}"
-	
 	CURRENTARCHPATH="${CURRENTPATH}/bin/${PLATFORM}${SDKVERSION}-${ARCH}.sdk"
 	mkdir -p "${CURRENTARCHPATH}"
 	LOG="${CURRENTARCHPATH}/build-openssl-${VERSION}.log"
 
+	if [[ "${VERSION}" == "1.1."* ]]; then
+		LOCAL_CONFIG_OPTIONS="${TARGET} --prefix=${CURRENTARCHPATH} no-async no-shared no-engine"
+	else
+		export CC="${BUILD_TOOLS}/usr/bin/gcc -fembed-bitcode -arch ${ARCH}"
+		if [ "${ARCH}" == "x86_64" ]; then
+			LOCAL_CONFIG_OPTIONS="darwin64-x86_64-cc --openssldir='${CURRENTARCHPATH}'"
+		else
+			LOCAL_CONFIG_OPTIONS="BSD-generic32 --openssldir='${CURRENTARCHPATH}'"
+			#LOCAL_CONFIG_OPTIONS="iphoneos-cross --openssldir='${CURRENTARCHPATH}'"
+		fi
+	fi
+
 	set +e
-	if [ "${ARCH}" == "x86_64" ]; then
-	    ./Configure darwin64-x86_64-cc --openssldir="${CURRENTARCHPATH}" > "${LOG}" 2>&1
-    else
-	    ./Configure BSD-generic32 --openssldir="${CURRENTARCHPATH}" > "${LOG}" 2>&1
-    #else
-	#    ./Configure iphoneos-cross --openssldir="${CURRENTARCHPATH}" > "${LOG}" 2>&1
-    fi
+	CONFIG_CMD="./Configure ${LOCAL_CONFIG_OPTIONS}"
+	echo ARCH=${ARCH} CONFIG=${CONFIG_CMD}
+	echo "Building openssl-${VERSION} for ${PLATFORM} ${SDKVERSION} ${ARCH}"
+	echo "Please stand by..."
+
+	${CONFIG_CMD} > "${LOG}" 2>&1
     
     if [ $? != 0 ];
     then 
@@ -115,7 +136,9 @@ do
     fi
 
 	# add -isysroot to CC=
-	sed -ie "s!^CFLAG=!CFLAG=-isysroot ${CROSS_TOP}/SDKs/${CROSS_SDK} -miphoneos-version-min=7.0 !" "Makefile"
+	if [[ "${VERSION}" != "1.1."* ]]; then
+		sed -ie "s!^CFLAG=!CFLAG=-isysroot ${CROSS_TOP}/SDKs/${CROSS_SDK} -miphoneos-version-min=7.0 !" "Makefile"
+	fi
 
 	if [ "$1" == "verbose" ];
 	then
@@ -137,20 +160,20 @@ do
 	make clean >> "${LOG}" 2>&1
 done
 
+
 echo "Build library..."
 OUTLIBPAHT="${CURRENTPATH}/lib/iphoneos"
 mkdir -p ${OUTLIBPAHT}
-lipo -create ${CURRENTPATH}/bin/iPhoneOS${SDKVERSION}-armv7.sdk/libssl.a ${CURRENTPATH}/bin/iPhoneOS${SDKVERSION}-armv7s.sdk/libssl.a ${CURRENTPATH}/bin/iPhoneOS${SDKVERSION}-arm64.sdk/libssl.a -output ${OUTLIBPAHT}/libssl.a
-lipo -create ${CURRENTPATH}/bin/iPhoneOS${SDKVERSION}-armv7.sdk/libcrypto.a ${CURRENTPATH}/bin/iPhoneOS${SDKVERSION}-armv7s.sdk/libcrypto.a ${CURRENTPATH}/bin/iPhoneOS${SDKVERSION}-arm64.sdk/libcrypto.a -output ${OUTLIBPAHT}/libcrypto.a
+lipo -create ${CURRENTPATH}/bin/iPhoneOS${SDKVERSION}-armv7s.sdk/libssl.a ${CURRENTPATH}/bin/iPhoneOS${SDKVERSION}-arm64.sdk/libssl.a -output ${OUTLIBPAHT}/libssl.a
+lipo -create ${CURRENTPATH}/bin/iPhoneOS${SDKVERSION}-armv7s.sdk/libcrypto.a ${CURRENTPATH}/bin/iPhoneOS${SDKVERSION}-arm64.sdk/libcrypto.a -output ${OUTLIBPAHT}/libcrypto.a
 
 OUTLIBPAHT="${CURRENTPATH}/lib/iphonesimulator"
 mkdir -p ${OUTLIBPAHT}
-lipo -create ${CURRENTPATH}/bin/iPhoneSimulator${SDKVERSION}-i386.sdk/libssl.a ${CURRENTPATH}/bin/iPhoneSimulator${SDKVERSION}-x86_64.sdk/libssl.a -output ${OUTLIBPAHT}/libssl.a
-lipo -create ${CURRENTPATH}/bin/iPhoneSimulator${SDKVERSION}-i386.sdk/libcrypto.a ${CURRENTPATH}/bin/iPhoneSimulator${SDKVERSION}-x86_64.sdk/libcrypto.a -output ${OUTLIBPAHT}/libcrypto.a
+cp ${CURRENTPATH}/bin/iPhoneSimulator${SDKVERSION}-x86_64.sdk/libssl.a ${OUTLIBPAHT}/libssl.a
+cp ${CURRENTPATH}/bin/iPhoneSimulator${SDKVERSION}-x86_64.sdk/libcrypto.a ${OUTLIBPAHT}/libcrypto.a
 
-#mkdir -p ${CURRENTPATH}/include
-#cp -R ${CURRENTPATH}/bin/iPhoneSimulator${SDKVERSION}-i386.sdk/include/openssl ${CURRENTPATH}/include/
+
 echo "Building done."
 echo "Cleaning up..."
-rm -rf ${CURRENTPATH}/src/openssl-${VERSION}
+#rm -rf ${CURRENTPATH}/src/openssl-${VERSION}
 echo "Done."
