@@ -1,0 +1,12 @@
+diff --git a/Configurations/15-android.conf b/Configurations/15-android.conf
+index 7b496a4529..5f9c57133d 100644
+--- a/Configurations/15-android.conf
++++ b/Configurations/15-android.conf
+@@ -170,6 +170,7 @@ my %targets = (
+         bn_ops           => sub { android_ndk()->{bn_ops} },
+         bin_cflags       => "-pie",
+         enable           => [ ],
++        shared_extension => ".\$(SHLIB_VERSION_NUMBER).so"
+     },
+     "android-arm" => {
+         ################################################################
